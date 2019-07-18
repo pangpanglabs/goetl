@@ -1,4 +1,4 @@
-package etl
+package goetl
 
 import (
 	"context"
