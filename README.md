@@ -4,6 +4,8 @@ A toolkit for ETL(Extract, Transform, Load) in Go
 
 ## Getting Started
 
+Reference: https://github.com/pangpanglabs/goetl/blob/master/etl_test.go
+
 ```go
 import (
 	"github.com/pangpanglabs/goetl"
