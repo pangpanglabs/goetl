@@ -2,11 +2,12 @@ package goetl
 
 import "context"
 
-type TransformFunc func(ctx context.Context, target interface{}) (interface{}, error)
-type TransformFilter func(next TransformFunc) TransformFunc
+type BeforeFilterFunc func(ctx context.Context, target interface{}) (interface{}, error)
+type AfterFilterFunc func(ctx context.Context, target interface{}) error
+type BeforeFilter func(next BeforeFilterFunc) BeforeFilterFunc
 
-func newTransformFilter(f TransformFunc) TransformFilter {
-	return func(next TransformFunc) TransformFunc {
+func beforeFilter(f BeforeFilterFunc) BeforeFilter {
+	return func(next BeforeFilterFunc) BeforeFilterFunc {
 		return func(ctx context.Context, target interface{}) (interface{}, error) {
 			v, err := f(ctx, target)
 			if err != nil {

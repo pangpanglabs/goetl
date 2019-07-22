@@ -1,4 +1,4 @@
-package goetl
+package goetl_test
 
 import (
 	"context"
@@ -6,22 +6,32 @@ import (
 	"fmt"
 	"strings"
 	"testing"
+
+	"github.com/pangpanglabs/goetl"
 )
 
 func TestETL(t *testing.T) {
 	etl := buildETL()
+
+	// 실행 여부 확인
 	if err := etl.Run(context.Background()); err != nil {
 		t.Fail()
 	}
 }
 
-func buildETL() *ETL {
-	etl := New(Mock{})
-	etl.BeforeTransform(toUpper)
-	etl.BeforeTransform(trim)
+func buildETL() *goetl.ETL {
+	etlRunner := Mock{
+		// 생성 로직
+	}
 
-	etl.AfterTransform(after1)
-	etl.AfterTransform(after2)
+	etl := goetl.New(etlRunner)
+
+	etl.Before(toUpper)
+	etl.Before(trim)
+
+	etl.After(after1)
+	etl.After(after2)
+
 	return etl
 }
 
@@ -86,11 +96,11 @@ func trim(ctx context.Context, target interface{}) (interface{}, error) {
 	return result, nil
 }
 
-func after1(ctx context.Context, target interface{}) (interface{}, error) {
+func after1(ctx context.Context, target interface{}) error {
 	fmt.Println("AfterFilter1")
-	return target, nil
+	return nil
 }
-func after2(ctx context.Context, target interface{}) (interface{}, error) {
+func after2(ctx context.Context, target interface{}) error {
 	fmt.Println("AfterFilter2")
-	return target, nil
+	return nil
 }

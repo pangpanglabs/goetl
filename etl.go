@@ -5,9 +5,9 @@ import (
 )
 
 type ETL struct {
-	runner          ETLRunner
-	beforeTransform []TransformFilter
-	afterTransform  []TransformFunc
+	runner        ETLRunner
+	beforeFilters []BeforeFilter
+	afterFilters  []AfterFilterFunc
 }
 
 func New(runner ETLRunner) *ETL {
@@ -16,12 +16,12 @@ func New(runner ETLRunner) *ETL {
 	}
 }
 
-func (e *ETL) BeforeTransform(f TransformFunc) {
-	e.beforeTransform = append(e.beforeTransform, newTransformFilter(f))
+func (e *ETL) Before(f BeforeFilterFunc) {
+	e.beforeFilters = append(e.beforeFilters, beforeFilter(f))
 }
 
-func (e *ETL) AfterTransform(f TransformFunc) {
-	e.afterTransform = append(e.afterTransform, f)
+func (e *ETL) After(f AfterFilterFunc) {
+	e.afterFilters = append(e.afterFilters, f)
 }
 
 func (e *ETL) Run(ctx context.Context) error {
@@ -31,8 +31,8 @@ func (e *ETL) Run(ctx context.Context) error {
 	}
 
 	transform := e.runner.Transform
-	for i := range e.beforeTransform {
-		transform = e.beforeTransform[len(e.beforeTransform)-1-i](transform)
+	for i := range e.beforeFilters {
+		transform = e.beforeFilters[len(e.beforeFilters)-1-i](transform)
 	}
 
 	target, err := transform(ctx, source)
@@ -40,10 +40,8 @@ func (e *ETL) Run(ctx context.Context) error {
 		return err
 	}
 
-	for i := range e.afterTransform {
-		var err error
-		target, err = e.afterTransform[i](ctx, target)
-		if err != nil {
+	for i := range e.afterFilters {
+		if err := e.afterFilters[i](ctx, target); err != nil {
 			return err
 		}
 	}
