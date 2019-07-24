@@ -10,7 +10,7 @@ type ETL struct {
 	afterFilters  []AfterFilterFunc
 }
 
-func New(runner ETLRunner) *ETL {
+func NewEtl(runner ETLRunner) *ETL {
 	return &ETL{
 		runner: runner,
 	}
